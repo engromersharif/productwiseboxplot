@@ -1,0 +1,339 @@
+---
+title: <center> <h1>  PRODUCT OUTLIER DETAILS </h1> </center>
+author: "Omer Sharif"
+date: "7/27/2021"
+output: 
+ rmarkdown::html_document:
+  theme: journal
+  toc: true
+  toc_float: true
+  highlight: tango
+  number_sections: false
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(ggthemes)
+library(dplyr)
+library(viridis)
+library(DT)
+library(kableExtra)
+library(readxl)
+
+# Induct In Ethanol Excel Sheet
+Main <- read_excel("C:/Users/omer.sharif/Desktop/Office Computer/Capstone/R Codes/Ethanol Dashboard/Jun 2021/Main.xlsm")
+```
+
+# INTERACTIVE REPORT
+
+### `Box Plot`
+
+* Hover of the mouse on the _"Outlier"_ highlights _Prices_ and mouse hover on box itself highlights _'"Minimum and Maximum Price"_ and _"Inter Quartile Ranges"_,
+* `Colours` represent different _Products_.
+* Box plot is tool used to investigate range of the data (maximum and minimum values).
+
+```{r products,echo=FALSE,fig.align='center',fig.width=9,fig.height=5}
+
+Product <- as.factor(Main$Product)
+p <- ggplot(data=Main,aes(x=Product,y=`M.Ton Price`,colour=Product))
+p <- p + geom_boxplot() + guides(fill="none") + scale_fill_viridis() + coord_flip()
+p <- p + theme(legend.position = "", plot.title=element_text(hjust=0.5))+labs(x="",y="",title="PRODUCT WISE PRICE PER M.TON YEAR 2017 TO 2021")
+p <- p + facet_grid(.~Year,scales = "free") 
+p <- ggplotly(p) 
+hide_legend(p) %>% config(displaylogo = FALSE) %>%  config(displayModeBar = FALSE) 
+
+```
+
+### `Histogram Plot` 
+* Hover of the mouse over a bar shows _"Frequency", "Price Bin", and "Product"_.
+* Drag the mouse over a section of the graph to zoom in and Double click to zoom out.
+* The **Histogram** tool is a method that uses bars (or rectangles) to represent the distribution (such as the frequency, percentage, or proportion) of data by placing each data value in an appropriate class interval. It is useful for examining the spread of the data set.
+
+```{r,echo=FALSE,fig.align='center',fig.width=9,fig.height=7}
+
+Year <- as.factor(Main$Year)
+Product <- as.factor(Main$Product)
+
+p <- ggplot(data=Main,aes(x=`M.Ton Price`,colour= Product))
+p <- p + geom_histogram(alpha = 0.2,bins=35) + facet_grid(Product~Year, scales = "free") + 
+  theme (legend.position = "") + labs(x="",y="")
+p <- p + scale_fill_viridis_d() 
+p <- ggplotly(p) 
+hide_legend(p) %>% config(displaylogo = FALSE) %>%  config(displayModeBar = FALSE) 
+
+```
+
+# OUTLIER DATA
+
+* Following are _`Outlier`_ tables based on _Year_ and _Product_ basis.
+* Tables are preceded by Count of _`Outlier`_ within a category.
+* Each record in the table below is unique. 
+
+## YEAR 2021
+
+### * `Hydrous 95.8%`
+
+```{r,message= FALSE,fig.width=8}
+Main_Hydrous_2021 <-  Main %>% filter(Product == "Hydrous 95.8%" & Year == "2021") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_Hydrous_2021$`M.Ton Price`)$out
+out_ind <- which(Main_Hydrous_2021$`M.Ton Price` %in% c(out))
+x <- Main_Hydrous_2021[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
+
+### * `ENA 96%`
+
+```{r,message= FALSE}
+Main_ENA_2021 <-  Main %>% filter(Product == "ENA 96%" & Year == "2021") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_ENA_2021$`M.Ton Price`)$out
+out_ind <- which(Main_ENA_2021$`M.Ton Price` %in% c(out))
+x <- Main_ENA_2021[out_ind,]  %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
+### * `B-Grade`
+
+```{r,message= FALSE}
+Main_BGrade_2021 <-  Main %>% filter(Product == "B-Grade (94.5%-92.5%)" & Year == "2021") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_BGrade_2021$`M.Ton Price`)$out
+out_ind <- which(Main_BGrade_2021$`M.Ton Price` %in% c(out))
+x <- Main_BGrade_2021[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
+
+### * `Anhydrous 99%` 
+
+```{r,message= FALSE}
+
+Main_Anhydrous_2021 <- Main %>% filter(Product == "Anhydrous 99%" & Year == "2021") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`) 
+out <- boxplot.stats(Main_Anhydrous_2021$`M.Ton Price`)$out
+out_ind <- which(Main_Anhydrous_2021$`M.Ton Price` %in% c(out))
+x <- Main_Anhydrous_2021[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+
+```
+
+## YEAR 2020
+
+### * `Hydrous 95.8%`
+
+```{r,message= FALSE}
+Main_Hydrous_2020 <-  Main %>% filter(Product == "Hydrous 95.8%" & Year == "2020") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_Hydrous_2020$`M.Ton Price`)$out
+out_ind <- which(Main_Hydrous_2020$`M.Ton Price` %in% c(out))
+x <- Main_Hydrous_2020[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
+
+### * `ENA 96%`
+```{r,message= FALSE}
+Main_ENA_2020 <-  Main %>% filter(Product == "ENA 96%" & Year == "2020") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_ENA_2020$`M.Ton Price`)$out
+out_ind <- which(Main_ENA_2020$`M.Ton Price` %in% c(out))
+x <- Main_ENA_2020[out_ind,]  %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x) 
+```
+
+### * `B-Grade`
+
+```{r,message= FALSE}
+Main_BGrade_2020 <-  Main %>% filter(Product == "B-Grade (94.5%-92.5%)" & Year == "2020") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_BGrade_2020$`M.Ton Price`)$out
+out_ind <- which(Main_BGrade_2020$`M.Ton Price` %in% c(out))
+x <- Main_BGrade_2020[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
+
+### * `Anhydrous 99%` 
+
+```{r,message= FALSE}
+Main_Anhydrous_2020 <- Main %>% filter(Product == "Anhydrous 99%" & Year == "2020") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`) 
+out <- boxplot.stats(Main_Anhydrous_2020$`M.Ton Price`)$out
+out_ind <- which(Main_Anhydrous_2020$`M.Ton Price` %in% c(out))
+x <- Main_Anhydrous_2020[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
+
+## YEAR 2019
+
+### * `Hydrous 95.8%`
+
+```{r,message= FALSE}
+
+Main_Hydrous_2019 <-  Main %>% filter(Product == "Hydrous 95.8%" & Year == "2019") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_Hydrous_2019$`M.Ton Price`)$out
+out_ind <- which(Main_Hydrous_2019$`M.Ton Price` %in% c(out))
+x <- Main_Hydrous_2019[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+
+```
+
+
+### * `ENA 96%`
+```{r,message= FALSE}
+
+Main_ENA_2019 <-  Main %>% filter(Product == "ENA 96%" & Year == "2019") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_ENA_2019$`M.Ton Price`)$out
+out_ind <- which(Main_ENA_2019$`M.Ton Price` %in% c(out))
+x <- Main_ENA_2019[out_ind,]  %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x) 
+
+```
+
+### * `B-Grade`
+
+```{r,message= FALSE}
+
+Main_BGrade_2019 <-  Main %>% filter(Product == "B-Grade (94.5%-92.5%)" & Year == "2019") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_BGrade_2019$`M.Ton Price`)$out
+out_ind <- which(Main_BGrade_2019$`M.Ton Price` %in% c(out))
+x <- Main_BGrade_2019[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+
+```
+
+### * `Anhydrous 99%` 
+
+```{r,message= FALSE}
+
+Main_Anhydrous_2019 <- Main %>% filter(Product == "Anhydrous 99%" & Year == "2019") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`) 
+out <- boxplot.stats(Main_Anhydrous_2019$`M.Ton Price`)$out
+out_ind <- which(Main_Anhydrous_2019$`M.Ton Price` %in% c(out))
+x <- Main_Anhydrous_2019[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+
+```
+
+
+## YEAR 2018
+
+### * `Hydrous 95.8%`
+```{r,message= FALSE}
+
+Main_Hydrous_2018 <-  Main %>% filter(Product == "Hydrous 95.8%" & Year == "2018") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_Hydrous_2018$`M.Ton Price`)$out
+out_ind <- which(Main_Hydrous_2018$`M.Ton Price` %in% c(out))
+x <- Main_Hydrous_2018[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+
+```
+
+
+
+### * `ENA 96%`
+```{r,message= FALSE}
+Main_ENA_2018 <-  Main %>% filter(Product == "ENA 96%" & Year == "2018") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_ENA_2018$`M.Ton Price`)$out
+out_ind <- which(Main_ENA_2018$`M.Ton Price` %in% c(out))
+x <- Main_ENA_2018[out_ind,]  %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+
+```
+
+
+### * `B-Grade`
+
+```{r,message= FALSE}
+Main_BGrade_2018 <-  Main %>% filter(Product == "B-Grade (94.5%-92.5%)" & Year == "2018") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_BGrade_2018$`M.Ton Price`)$out
+out_ind <- which(Main_BGrade_2018$`M.Ton Price` %in% c(out))
+x <- Main_BGrade_2018[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x) 
+```
+
+### * `Anhydrous 99%` 
+
+```{r,message= FALSE}
+Main_Anhydrous_2018 <- Main %>% filter(Product == "Anhydrous 99%" & Year == "2018") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`) 
+out <- boxplot.stats(Main_Anhydrous_2018$`M.Ton Price`)$out
+out_ind <- which(Main_Anhydrous_2018$`M.Ton Price` %in% c(out))
+x <- Main_Anhydrous_2018[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+
+```
+
+## YEAR 2017
+
+### * `Hydrous 95.8%`
+```{r,message= FALSE}
+Main_Hydrous_2017 <-  Main %>% filter(Product == "Hydrous 95.8%" & Year == "2017") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_Hydrous_2017$`M.Ton Price`)$out
+out_ind <- which(Main_Hydrous_2017$`M.Ton Price` %in% c(out))
+x <- Main_Hydrous_2017[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x) 
+
+```
+
+### * `ENA 96%`
+```{r,message= FALSE}
+Main_ENA_2017 <-  Main %>% filter(Product == "ENA 96%" & Year == "2017") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_ENA_2017$`M.Ton Price`)$out
+out_ind <- which(Main_ENA_2017$`M.Ton Price` %in% c(out))
+x <- Main_ENA_2017[out_ind,]  %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x) 
+```
+
+### * `B-Grade`
+
+```{r,message= FALSE}
+Main_BGrade_2017 <-  Main %>% filter(Product == "B-Grade (94.5%-92.5%)" & Year == "2017") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`)
+out <- boxplot.stats(Main_BGrade_2017$`M.Ton Price`)$out
+out_ind <- which(Main_BGrade_2017$`M.Ton Price` %in% c(out))
+x <- Main_BGrade_2017[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
+
+
+
+### * `Anhydrous 99%` 
+
+```{r,message= FALSE}
+Main_Anhydrous_2017 <- Main %>% filter(Product == "Anhydrous 99%" & Year == "2017") %>% select (Month,REGION,COUNTRY,EXPORTER,IMPORTER,`M.Ton Price`,`QTY. (MT)`,`VALUE ($USD)`) 
+out <- boxplot.stats(Main_Anhydrous_2017$`M.Ton Price`)$out
+out_ind <- which(Main_Anhydrous_2017$`M.Ton Price` %in% c(out))
+x <- Main_Anhydrous_2017[out_ind,] %>% arrange(desc(`M.Ton Price`))
+count <- x %>% tally() %>% as_tibble() %>% rename(Count =n)
+kbl(count)  %>% kable_paper("hover", full_width = F)
+datatable(x)
+```
